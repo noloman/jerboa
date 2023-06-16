@@ -49,6 +49,7 @@ fun PostEditActivity(
     val pv = postEditViewModel.postView
     var name by rememberSaveable { mutableStateOf(pv?.post?.name.orEmpty()) }
     var url by rememberSaveable { mutableStateOf(pv?.post?.url.orEmpty()) }
+    var nsfw by rememberSaveable { mutableStateOf(pv?.post?.nsfw ?: false) }
     var body by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(
             TextFieldValue(
@@ -76,13 +77,14 @@ fun PostEditActivity(
                                 account = acct,
                                 ctx = ctx,
                                 body = bodyOut,
+                                nsfw = nsfw,
                                 url = urlOut,
                                 name = nameOut,
                                 navController = navController,
                                 postViewModel = postViewModel,
                                 personProfileViewModel = personProfileViewModel,
                                 communityViewModel = communityViewModel,
-                                homeViewModel = homeViewModel,
+                                homeViewModel = homeViewModel
                             )
                         }
                     },
@@ -98,6 +100,8 @@ fun PostEditActivity(
                 onNameChange = { name = it },
                 body = body,
                 onBodyChange = { body = it },
+                nsfw = nsfw,
+                onNsfwChanged = { nsfw = it },
                 url = url,
                 onUrlChange = { url = it },
                 formValid = { formValid = it },

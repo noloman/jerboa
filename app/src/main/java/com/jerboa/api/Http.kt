@@ -413,6 +413,7 @@ suspend fun createPostWrapper(
     body: String?,
     url: String?,
     name: String,
+    nsfw: Boolean
 ): PostView? {
     var createdPostView: PostView? = null
     val api = API.getInstance()
@@ -424,6 +425,7 @@ suspend fun createPostWrapper(
             body = body,
             url = url,
             auth = account.jwt,
+            nsfw = nsfw
         )
         Log.d(
             "jerboa",
@@ -443,6 +445,7 @@ suspend fun editPostWrapper(
     body: String?,
     url: String?,
     name: String,
+    nsfw: Boolean
 ): PostView? {
     var editedPostView: PostView? = null
     val api = API.getInstance()
@@ -454,6 +457,7 @@ suspend fun editPostWrapper(
             body = body,
             url = url,
             auth = account.jwt,
+            nsfw = nsfw
         )
         editedPostView = retrofitErrorHandler(api.editPost(form)).post_view
     } catch (e: Exception) {

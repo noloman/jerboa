@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.jerboa.ui.components.post.create
 
 import android.net.Uri
@@ -7,7 +5,6 @@ import android.util.Log
 import android.util.Patterns
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -41,9 +38,9 @@ fun CreatePostActivity(
     createPostViewModel: CreatePostViewModel,
     navController: NavController,
     communityListViewModel: CommunityListViewModel,
-    _url: String,
-    _body: String,
-    _image: Uri?,
+    url: String,
+    body: String,
+    uri: Uri?
 ) {
     Log.d("jerboa", "got to create post activity")
 
@@ -51,24 +48,25 @@ fun CreatePostActivity(
     val account = getCurrentAccount(accountViewModel = accountViewModel)
     val scope = rememberCoroutineScope()
 
-    var name by rememberSaveable { mutableStateOf("") }
-    var url by rememberSaveable { mutableStateOf(_url) }
-    var body by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+    var postName by rememberSaveable { mutableStateOf("") }
+    var postUrl by rememberSaveable { mutableStateOf(url) }
+    var postBody by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(
             TextFieldValue(
-                _body,
+                body,
             ),
         )
     }
+    var nsfw by rememberSaveable { mutableStateOf(false) }
     var formValid by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(_url) {
-        if (_url.isNotEmpty()) {
+    LaunchedEffect(postUrl) {
+        if (postUrl.isNotEmpty()) {
             fetchSuggestedTitleJob?.cancel()
             fetchSuggestedTitleJob = scope.launch {
                 delay(DEBOUNCE_DELAY)
-                if (Patterns.WEB_URL.matcher(_url).matches()) {
-                    createPostViewModel.fetchSuggestedTitle(_url, ctx)
+                if (Patterns.WEB_URL.matcher(postUrl).matches()) {
+                    createPostViewModel.fetchSuggestedTitle(postUrl, ctx)
                 }
             }
         }
@@ -86,9 +84,9 @@ fun CreatePostActivity(
                             account?.also { acct ->
                                 communityListViewModel.selectedCommunity?.id?.also {
                                     // Clean up that data
-                                    val nameOut = name.trim()
-                                    val bodyOut = body.text.trim().ifEmpty { null }
-                                    val urlOut = url.trim().ifEmpty { null }
+                                    val nameOut = postName.trim()
+                                    val bodyOut = postBody.text.trim().ifEmpty { null }
+                                    val urlOut = postUrl.trim().ifEmpty { null }
                                     createPostViewModel.createPost(
                                         account = acct,
                                         ctx = ctx,
@@ -97,6 +95,7 @@ fun CreatePostActivity(
                                         name = nameOut,
                                         communityId = it,
                                         navController = navController,
+                                        nsfw = nsfw
                                     )
                                 }
                             }
@@ -109,13 +108,15 @@ fun CreatePostActivity(
             },
             content = { padding ->
                 CreatePostBody(
-                    name = name,
-                    onNameChange = { name = it },
-                    body = body,
-                    onBodyChange = { body = it },
-                    url = url,
+                    name = postName,
+                    onNameChange = { postName = it },
+                    body = postBody,
+                    onBodyChange = { postBody = it },
+                    nsfw = nsfw,
+                    onNsfwChanged = { nsfw = it },
+                    url = postUrl,
                     onUrlChange = { cUrl ->
-                        url = cUrl
+                        postUrl = cUrl
                         fetchSuggestedTitleJob?.cancel()
                         fetchSuggestedTitleJob = scope.launch {
                             delay(DEBOUNCE_DELAY)
@@ -128,19 +129,19 @@ fun CreatePostActivity(
                     community = communityListViewModel.selectedCommunity,
                     formValid = { formValid = it },
                     suggestedTitle = createPostViewModel.suggestedTitle,
-                    image = _image,
+                    image = uri,
                     onPickedImage = { uri ->
                         if (uri != Uri.EMPTY) {
                             val imageIs = imageInputStreamFromUri(ctx, uri)
                             scope.launch {
                                 account?.also { acct ->
-                                    url = uploadPictrsImage(acct, imageIs, ctx).orEmpty()
+                                    postUrl = uploadPictrsImage(acct, imageIs, ctx).orEmpty()
                                 }
                             }
                         }
                     },
                     account = account,
-                    padding = padding,
+                    padding = padding
                 )
             },
         )

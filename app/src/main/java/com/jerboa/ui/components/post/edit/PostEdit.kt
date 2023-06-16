@@ -5,6 +5,7 @@ package com.jerboa.ui.components.post.edit
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -13,8 +14,17 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Save
-import androidx.compose.material3.*
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -31,6 +41,7 @@ import com.jerboa.ui.theme.MEDIUM_PADDING
 import com.jerboa.validatePostName
 import com.jerboa.validateUrl
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditPostHeader(
     navController: NavController = rememberNavController(),
@@ -75,6 +86,8 @@ fun EditPostBody(
     onNameChange: (name: String) -> Unit,
     body: TextFieldValue,
     onBodyChange: (body: TextFieldValue) -> Unit,
+    nsfw: Boolean,
+    onNsfwChanged: ((Boolean) -> Unit)?,
     url: String,
     onUrlChange: (url: String) -> Unit,
     onPickedImage: (image: Uri) -> Unit,
@@ -121,9 +134,22 @@ fun EditPostBody(
             modifier = Modifier
                 .fillMaxWidth(),
         )
-        PickImage(
-            onPickedImage = onPickedImage,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("NSFW")
+                Checkbox(
+                    checked = nsfw,
+                    onCheckedChange = onNsfwChanged
+                )
+            }
+            PickImage(
+                onPickedImage = onPickedImage,
+            )
+        }
         MarkdownTextField(
             text = body,
             onTextChange = onBodyChange,
@@ -136,7 +162,6 @@ fun EditPostBody(
         )
     }
 }
-
 @Preview
 @Composable
 fun EditPostBodyPreview() {
@@ -144,6 +169,8 @@ fun EditPostBodyPreview() {
         name = "",
         body = TextFieldValue(""),
         url = "",
+        nsfw = false,
+        onNsfwChanged = {},
         formValid = {},
         onBodyChange = {},
         onNameChange = {},

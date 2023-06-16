@@ -34,6 +34,7 @@ class PostEditViewModel : ViewModel() {
         name: String,
         body: String?,
         url: String?,
+        nsfw: Boolean,
         ctx: Context,
         navController: NavController,
         account: Account,
@@ -52,6 +53,7 @@ class PostEditViewModel : ViewModel() {
                     url = url,
                     name = name,
                     ctx = ctx,
+                    nsfw = nsfw
                 )
                 postViewModel.postView.value = postView
                 findAndUpdatePost(personProfileViewModel.posts, postView)

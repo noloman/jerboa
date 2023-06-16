@@ -60,9 +60,9 @@ fun NavGraphBuilder.createPostScreen(
             accountViewModel = accountViewModel,
             createPostViewModel = createPostViewModel,
             communityListViewModel = communityListViewModel,
-            _url = url,
-            _body = body,
-            _image = image,
+            url = url,
+            body = body,
+            uri = image,
         )
         activity?.intent?.replaceExtras(Bundle())
     }

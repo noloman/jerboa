@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
@@ -18,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -98,6 +100,8 @@ fun CreatePostBody(
     url: String,
     onUrlChange: (url: String) -> Unit,
     onPickedImage: (image: Uri) -> Unit,
+    nsfw: Boolean,
+    onNsfwChanged: ((Boolean) -> Unit)?,
     image: Uri? = null,
     community: CommunitySafe? = null,
     navController: NavController = rememberNavController(),
@@ -110,9 +114,7 @@ fun CreatePostBody(
     val urlField = validateUrl(url)
 
     formValid(
-        !nameField.hasError &&
-            !urlField.hasError &&
-            (community !== null),
+        !nameField.hasError && !urlField.hasError && (community !== null),
     )
 
     val scrollState = rememberScrollState()
@@ -132,8 +134,7 @@ fun CreatePostBody(
             label = {
                 Text(text = nameField.label)
             },
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
             label = {
@@ -143,8 +144,7 @@ fun CreatePostBody(
             isError = urlField.hasError,
             onValueChange = onUrlChange,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
         )
         suggestedTitle?.also {
             Text(
@@ -154,12 +154,19 @@ fun CreatePostBody(
                 modifier = Modifier.clickable { onNameChange(it) },
             )
         }
-        PickImage(
-            onPickedImage = onPickedImage,
-            image = image,
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.End,
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("NSFW")
+            Checkbox(
+                checked = nsfw,
+                onCheckedChange = onNsfwChanged
+            )
+            PickImage(
+                onPickedImage = onPickedImage,
+                image = image,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.End,
+            )
+        }
         MarkdownTextField(
             text = body,
             onTextChange = onBodyChange,
@@ -194,8 +201,7 @@ fun CreatePostBody(
                             contentDescription = stringResource(R.string.createPost_selectCommunity),
                         )
                     },
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                 )
             } ?: run {
                 OutlinedTextField(
@@ -204,8 +210,7 @@ fun CreatePostBody(
                     label = {
                         Text(stringResource(R.string.create_post_community))
                     },
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
             // A box to draw over the textview and override clicks
@@ -229,6 +234,8 @@ fun CreatePostBodyPreview() {
         onNameChange = {},
         body = TextFieldValue(""),
         onBodyChange = {},
+        nsfw = false,
+        onNsfwChanged = {},
         url = "",
         onUrlChange = {},
         onPickedImage = {},
@@ -247,6 +254,8 @@ fun CreatePostBodyPreviewNoCommunity() {
         onNameChange = {},
         body = TextFieldValue(""),
         onBodyChange = {},
+        nsfw = false,
+        onNsfwChanged = {},
         url = "",
         onUrlChange = {},
         onPickedImage = {},

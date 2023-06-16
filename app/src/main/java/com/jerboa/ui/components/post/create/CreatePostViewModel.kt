@@ -25,6 +25,7 @@ class CreatePostViewModel : ViewModel() {
         name: String,
         communityId: Int,
         navController: NavController,
+        nsfw: Boolean
     ) {
         viewModelScope.launch {
             loading = true
@@ -35,6 +36,7 @@ class CreatePostViewModel : ViewModel() {
                 url = url,
                 name = name,
                 ctx = ctx,
+                nsfw = nsfw
             )
             loading = false
             navController.popBackStack()
